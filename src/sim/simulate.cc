@@ -184,9 +184,12 @@ struct DescheduleDeleter
  * via the 'set_max_tick' function prior. This function is exported to Python.
  * @return The SimLoopExitEvent that caused the loop to exit.
  */
+GlobalSimLoopExitEvent *global_exit_event= nullptr;
 GlobalSimLoopExitEvent *
 simulate(Tick num_cycles)
 {
+    if (global_exit_event)//cleaning last global exit event
+        global_exit_event->clean();
     std::unique_ptr<GlobalSyncEvent, DescheduleDeleter> quantum_event;
 
     inform("Entering event queue @ %d.  Starting simulation...\n", curTick());
@@ -233,7 +236,7 @@ simulate(Tick num_cycles)
     BaseGlobalEvent *global_event = local_event->globalEvent();
     assert(global_event);
 
-    GlobalSimLoopExitEvent *global_exit_event =
+    global_exit_event =
         dynamic_cast<GlobalSimLoopExitEvent *>(global_event);
     assert(global_exit_event);
 
